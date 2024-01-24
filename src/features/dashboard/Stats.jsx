@@ -39,7 +39,7 @@ function Stats({ bookings, confirmedStays, numDays, cabinsCount }) {
         value={checkins}
       />
       <Stat
-        title={"Occupancu rate"}
+        title={"Occupancy rate"}
         color="yellow"
         icon={<HiOutlineChartBar />}
         value={`${Math.round(occupation * 100)}%`}
