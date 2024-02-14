@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { styled } from "styled-components";
 import { Calendar as CalendarReact } from "react-calendar";
 import { format, addDays, isEqual } from "date-fns";
+import StyledCalendar from "./css/StyledCalendar";
 
 const StyledToggleField = styled.div`
   border: 1px solid var(--color-grey-300);
@@ -25,95 +26,6 @@ const StyledSvg = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-const StyledCalendar = styled.div`
-  position: fixed;
-  width: 30rem;
-  z-index: 901;
-
-  background-color: var(--color-grey-0);
-  box-shadow: var(--shadow-md);
-  border-radius: var(--border-radius-md);
-
-  right: ${(props) => props.position.x}px;
-  top: ${(props) => props.position.y}px;
-
-  .react-calendar {
-    font-family: "Poppins", sans-serif;
-    color: var(--color-grey-800);
-    border-radius: 2px;
-    border: 1px solid var(--color-grey-300);
-    padding: 1.2rem 0;
-  }
-  .react-calendar__month-view__days__day--weekend {
-    color: var(--color-grey-400);
-    font-weight: 500;
-  }
-
-  .react-calendar__month-view__days__day--neighboringMonth,
-  .react-calendar__decade-view__years__year--neighboringDecade,
-  .react-calendar__century-view__decades__decade--neighboringCentury {
-    color: var(--color-grey-100);
-  }
-
-  .react-calendar__tile:disabled {
-    background-color: var(--color-grey-200);
-    color: var(--color-grey-0);
-  }
-
-  .react-calendar__tile:enabled:hover,
-  .react-calendar__tile:enabled:focus {
-    background-color: var(--color-grey-200);
-  }
-
-  .react-calendar__tile--now {
-    //background: var(--color-green-100);
-    border: 1px solid var(--color-indigo-700);
-  }
-
-  .react-calendar__tile--now {
-    background: inherit;
-  }
-
-  .react-calendar__tile--hasActive {
-    background: var(--color-indigo-700);
-    color: white;
-  }
-
-  .react-calendar__tile--active {
-    background: var(--color-indigo-700);
-    color: white;
-  }
-
-  .react-calendar__tile {
-    max-width: 40px;
-    margin: 1px 2px;
-    border-radius: 2px;
-    padding: 1px 0;
-  }
-
-  .react-calendar__tile:enabled:hover,
-  .react-calendar__tile:enabled:focus {
-    color: var(--color-indigo-700);
-  }
-
-  .react-calendar__navigation {
-    margin-bottom: 0.6rem;
-  }
-
-  .react-calendar__navigation button {
-    margin: 1px;
-    padding: 1px 0;
-  }
-  .react-calendar__navigation button:enabled:hover,
-  .react-calendar__navigation button:enabled:focus {
-    background-color: var(--color-grey-400);
-  }
-
-  .react-calendar__month-view__weekdays__weekday {
-    color: var(--color-grey-500);
-  }
 `;
 
 const StyledDate = styled.p``;
@@ -204,11 +116,8 @@ function Calendar() {
       const startDate = new Date(dateRange.startDate);
       const endDate = addDays(new Date(dateRange.endDate), -1);
 
-      allBlockedDates.push(new Date(startDate));
-
       while (startDate < endDate)
         allBlockedDates.push(
-          //addDays(startDate, 1)
           new Date(startDate.setDate(startDate.getDate() + 1))
         );
     });
@@ -216,6 +125,23 @@ function Calendar() {
   };
 
   const allBlockedDates = blockedDatesInCalendar(blockedDates);
+
+  const tileHalfBlockedClassAdd = ({ date }) => {
+    if (
+      blockedDates
+        .map((block) => block.startDate)
+        .some((day) => isEqual(day, date))
+    ) {
+      return "react-calendar-tile-blocked-left";
+    }
+    if (
+      blockedDates
+        .map((block) => block.endDate)
+        .some((day) => isEqual(day, date))
+    ) {
+      return "react-calendar-tile-blocked-right";
+    }
+  };
 
   return createPortal(
     <StyledCalendar position={position} ref={ref}>
@@ -227,6 +153,7 @@ function Calendar() {
         }}
         value={dates}
         selectRange={true}
+        tileClassName={tileHalfBlockedClassAdd}
         tileDisabled={({ date }) =>
           date < addDays(new Date(), -1) ||
           allBlockedDates.some((day) => isEqual(day, date))

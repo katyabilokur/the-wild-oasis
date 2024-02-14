@@ -8,15 +8,22 @@ import CalendarDateSelector from "../../ui/CalendarDateSelector";
 import Modal from "../../ui/Modal";
 import { useCabinBlockedDates } from "../cabins/useCabinBlockedDates";
 import Spinner from "../../ui/Spinner";
+import { useForm } from "react-hook-form";
 
 function AddBookingForm({ cabinToBook, onClose }) {
+  const { register, formState, getValues, handleSubmit, reset } = useForm();
+  const { errors } = formState;
   const { isLoading, dates } = useCabinBlockedDates(cabinToBook.id);
+
+  function onSubmit({ dates }) {
+    console.log(dates);
+  }
 
   if (isLoading) return <Spinner />;
   console.log(dates);
 
   return (
-    <Form>
+    <Form onSubmit={handleSubmit(onSubmit)}>
       <FormRowHeader name={cabinToBook.name} img={cabinToBook.image} />
       {/* Start date - end date */}
       <FormRow label="Booking dates">
