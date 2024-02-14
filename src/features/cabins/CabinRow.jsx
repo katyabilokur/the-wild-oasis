@@ -2,12 +2,13 @@ import styled from "styled-components";
 import { formatCurrency } from "../../utils/helpers";
 import CreateCabinForm from "./CreateCabinForm";
 import { useDeleteCabin } from "./useDeleteCabin";
-import { HiPencil, HiSquare2Stack, HiTrash } from "react-icons/hi2";
+import { HiCalendar, HiPencil, HiSquare2Stack, HiTrash } from "react-icons/hi2";
 import { useCreateCabin } from "./useCreateCabin";
 import Modal from "../../ui/Modal";
 import ConfirmDelete from "../../ui/ConfirmDelete";
 import Table from "../../ui/Table";
 import Menus from "../../ui/Menus";
+import AddBookingForm from "../bookings/AddBookingForm";
 
 // const TableRow = styled.div`
 //   display: grid;
@@ -103,6 +104,9 @@ function CabinRow({ cabin }) {
           <Menus.Menu>
             <Menus.Toggle id={cabinId} />
             <Menus.List id={cabinId}>
+              <Modal.Open opens="add-booking">
+                <Menus.Button icon={<HiCalendar />}>Add booking</Menus.Button>
+              </Modal.Open>
               <Menus.Button
                 icon={<HiSquare2Stack />}
                 disabled={isCreating}
@@ -119,6 +123,10 @@ function CabinRow({ cabin }) {
                 <Menus.Button icon={<HiTrash />}>Delete</Menus.Button>
               </Modal.Open>
             </Menus.List>
+
+            <Modal.Window name="add-booking" useOutsideClose={false}>
+              <AddBookingForm cabinToBook={cabin} />
+            </Modal.Window>
 
             <Modal.Window name="edit">
               <CreateCabinForm cabinToEdit={cabin} />

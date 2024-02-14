@@ -24,7 +24,7 @@ const Overlay = styled.div`
   height: 100vh;
   background-color: var(--backdrop-color);
   backdrop-filter: blur(4px);
-  z-index: 1000;
+  z-index: 900;
   transition: all 0.5s;
 `;
 
@@ -73,7 +73,7 @@ function Open({ children, opens: opensWindowName }) {
   return cloneElement(children, { onClick: () => open(opensWindowName) });
 }
 
-function Window({ name, children }) {
+function Window({ name, children, useOutsideClose = true }) {
   const { openName, close } = useContext(ModalContext);
 
   const ref = useOutsideClick(close);
@@ -94,7 +94,7 @@ function Window({ name, children }) {
 
   return createPortal(
     <Overlay>
-      <StyledModal ref={ref}>
+      <StyledModal ref={useOutsideClose ? ref : null}>
         <Button onClick={close}>
           <HiXMark />
         </Button>
