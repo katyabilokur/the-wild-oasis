@@ -9,31 +9,94 @@ import Modal from "../../ui/Modal";
 import { useCabinBlockedDates } from "../cabins/useCabinBlockedDates";
 import Spinner from "../../ui/Spinner";
 import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { addDays, format, formatDistanceStrict } from "date-fns";
+import { useSettings } from "../settings/useSettings";
 
 function AddBookingForm({ cabinToBook, onClose }) {
   const { register, formState, getValues, handleSubmit, reset } = useForm();
   const { errors } = formState;
-  const { isLoading, dates } = useCabinBlockedDates(cabinToBook.id);
 
-  function onSubmit({ dates }) {
-    console.log(dates);
+  //maxBookingLength maxGuestsPerBooking minBookingLength
+  const { settings } = useSettings();
+
+  const { isLoading, dates } = useCabinBlockedDates(cabinToBook.id);
+  const [datesSelected, setDatesSelected] = useState([
+    new Date(),
+    addDays(new Date(), 3),
+  ]);
+
+  function handleDateSelection(dates) {
+    setDatesSelected(dates);
+  }
+
+  useEffect(() => {
+    reset({ startDate: datesSelected[0], endDate: datesSelected[1] });
+  }, [datesSelected]);
+
+  const bookingLength =
+    +formatDistanceStrict(datesSelected[0], datesSelected[1], {
+      unit: "day",
+    }).split(" ")[0] - 1;
+
+  console.log(errors?.endDate);
+
+  // //TEST
+  // useEffect(() => {
+  //   console.log(`Dates on change: ${datesSelected}`);
+  // }, [datesSelected]);
+
+  function onSubmit({ startDate, endDate, name }) {
+    console.log(`START date: ${startDate}`);
+    console.log(`END date: ${endDate}`);
+    console.log(name);
   }
 
   if (isLoading) return <Spinner />;
-  console.log(dates);
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <FormRowHeader name={cabinToBook.name} img={cabinToBook.image} />
       {/* Start date - end date */}
-      <FormRow label="Booking dates">
-        <CalendarDateSelector isLoading={isLoading} blockedDates={dates}>
+      <FormRow label="Booking dates" error={errors?.endDate?.message}>
+        <CalendarDateSelector
+          onDateSelection={handleDateSelection}
+          isLoading={isLoading}
+          blockedDates={dates}
+        >
           <CalendarDateSelector.ToggleField />
           <Modal>
             <CalendarDateSelector.Calendar />
           </Modal>
         </CalendarDateSelector>
       </FormRow>
+      <input
+        id="startDate"
+        type="hidden"
+        {...register("startDate", { value: datesSelected[0] })}
+      />
+      <input
+        id="endDate"
+        type="hidden"
+        {...register("endDate", {
+          value: datesSelected[1],
+          //NOTE: for some reason multiple callback functions do not work, although, this code is better
+          // validate: {
+          //   minNights: () =>
+          //     bookingLength < settings.minBookingLength &&
+          //     `Minimum booking length should be at least ${settings.minBookingLength} nights`,
+          //   maxNights: () =>
+          //     bookingLength > settings.maxBookingLength &&
+          //     `Maximum booking length should be no more than ${settings.maxBookingLength} nights`,
+          // },
+
+          validate: () =>
+            (bookingLength < settings.minBookingLength &&
+              `Min booked nights should be at least ${settings.minBookingLength}`) ||
+            (bookingLength > settings.maxBookingLength &&
+              `Max booked nights should be less than ${settings.maxBookingLength}`),
+        })}
+      />
 
       {/* Guest name */}
       {/* Guest id/search existing user */}
@@ -49,7 +112,7 @@ function AddBookingForm({ cabinToBook, onClose }) {
           type="text"
           id="name"
           // disabled={isWorking}
-          // {...register("name", { required: "This field is required" })}
+          {...register("name")}
         />
       </FormRow>
       <FormRow>

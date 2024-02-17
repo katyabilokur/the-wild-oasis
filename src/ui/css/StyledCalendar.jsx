@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export default StyledCalendar = styled.div`
+const StyledCalendar = styled.div`
   position: fixed;
   width: 30rem;
   z-index: 901;
@@ -108,3 +108,5 @@ export default StyledCalendar = styled.div`
     );
   }
 `;
+
+export default StyledCalendar;

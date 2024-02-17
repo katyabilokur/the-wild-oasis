@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { HiCalendar } from "react-icons/hi2";
 import { useOutsideClick } from "../hooks/useOutsideClick";
 import { createPortal } from "react-dom";
@@ -32,11 +32,20 @@ const StyledDate = styled.p``;
 
 const CalendarDateContext = createContext();
 
-function CalendarDateSelector({ children, isLoading, blockedDates }) {
+function CalendarDateSelector({
+  children,
+  isLoading,
+  blockedDates,
+  onDateSelection,
+}) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [dates, setDates] = useState([new Date(), addDays(new Date(), 1)]);
   const [position, setPosition] = useState(null);
   const close = () => setCalendarOpen((open) => !open);
+
+  useEffect(() => {
+    onDateSelection(dates);
+  }, [dates]);
 
   return (
     <CalendarDateContext.Provider
