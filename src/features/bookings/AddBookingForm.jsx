@@ -21,25 +21,27 @@ function AddBookingForm({ cabinToBook, onClose }) {
   const { settings } = useSettings();
 
   const { isLoading, dates } = useCabinBlockedDates(cabinToBook.id);
-  const [datesSelected, setDatesSelected] = useState([
-    new Date(),
-    addDays(new Date(), 3),
-  ]);
+  const [datesSelected, setDatesSelected] = useState();
+  const [includeBlockedDates, setIncludeBlockedDates] = useState(false);
 
   function handleDateSelection(dates) {
     setDatesSelected(dates);
   }
 
+  function hanleIncludeBlockedDates(include) {
+    setIncludeBlockedDates(include);
+  }
+
   useEffect(() => {
-    reset({ startDate: datesSelected[0], endDate: datesSelected[1] });
+    reset({ startDate: datesSelected?.[0], endDate: datesSelected?.[1] });
   }, [datesSelected]);
 
-  const bookingLength =
-    +formatDistanceStrict(datesSelected[0], datesSelected[1], {
-      unit: "day",
-    }).split(" ")[0] - 1;
-
-  console.log(errors?.endDate);
+  const bookingLength = datesSelected
+    ? +formatDistanceStrict(datesSelected[0], datesSelected[1], {
+        unit: "day",
+      }).split(" ")[0] - 1
+    : 0;
+  // console.log(errors?.endDate);
 
   // //TEST
   // useEffect(() => {
@@ -61,6 +63,7 @@ function AddBookingForm({ cabinToBook, onClose }) {
       <FormRow label="Booking dates" error={errors?.endDate?.message}>
         <CalendarDateSelector
           onDateSelection={handleDateSelection}
+          onIncludeBlockedDates={hanleIncludeBlockedDates}
           isLoading={isLoading}
           blockedDates={dates}
         >
@@ -73,28 +76,25 @@ function AddBookingForm({ cabinToBook, onClose }) {
       <input
         id="startDate"
         type="hidden"
-        {...register("startDate", { value: datesSelected[0] })}
+        {...register("startDate", { value: datesSelected?.[0] })}
       />
       <input
         id="endDate"
         type="hidden"
         {...register("endDate", {
-          value: datesSelected[1],
-          //NOTE: for some reason multiple callback functions do not work, although, this code is better
-          // validate: {
-          //   minNights: () =>
-          //     bookingLength < settings.minBookingLength &&
-          //     `Minimum booking length should be at least ${settings.minBookingLength} nights`,
-          //   maxNights: () =>
-          //     bookingLength > settings.maxBookingLength &&
-          //     `Maximum booking length should be no more than ${settings.maxBookingLength} nights`,
-          // },
+          value: datesSelected?.[1],
 
-          validate: () =>
-            (bookingLength < settings.minBookingLength &&
-              `Min booked nights should be at least ${settings.minBookingLength}`) ||
-            (bookingLength > settings.maxBookingLength &&
-              `Max booked nights should be less than ${settings.maxBookingLength}`),
+          validate: {
+            minNights: () =>
+              bookingLength >= settings.minBookingLength ||
+              `Minimum booking length should be at least ${settings.minBookingLength} nights`,
+            maxNights: () =>
+              bookingLength <= settings.maxBookingLength ||
+              `Maximum booking length should be no more than ${settings.maxBookingLength} nights`,
+            noBlockedDates: () =>
+              !includeBlockedDates ||
+              "Some of the selected dates include already booked dates. Please reselect",
+          },
         })}
       />
 

@@ -7,6 +7,24 @@ import { Calendar as CalendarReact } from "react-calendar";
 import { format, addDays, isEqual } from "date-fns";
 import StyledCalendar from "./css/StyledCalendar";
 
+const createDateRange = (
+  startDate,
+  endDate,
+  includeStart = false,
+  existingDateRange = []
+) => {
+  const allDates = [...existingDateRange];
+
+  const sDate = new Date(startDate);
+  const eDate = addDays(new Date(endDate), includeStart ? -2 : -1);
+  if (includeStart) allDates.push(new Date(startDate));
+
+  while (sDate < eDate)
+    allDates.push(new Date(sDate.setDate(sDate.getDate() + 1)));
+
+  return allDates;
+};
+
 const StyledToggleField = styled.div`
   border: 1px solid var(--color-grey-300);
   background-color: var(--color-grey-0);
@@ -37,10 +55,12 @@ function CalendarDateSelector({
   isLoading,
   blockedDates,
   onDateSelection,
+  onIncludeBlockedDates,
 }) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [dates, setDates] = useState([new Date(), addDays(new Date(), 1)]);
   const [position, setPosition] = useState(null);
+  const [includeBlockedDates, setIncludeBlockedDates] = useState(false);
   const close = () => setCalendarOpen((open) => !open);
 
   useEffect(() => {
@@ -59,6 +79,7 @@ function CalendarDateSelector({
         setPosition,
         isLoading,
         blockedDates,
+        onIncludeBlockedDates,
       }}
     >
       {children}
@@ -113,22 +134,21 @@ function Calendar() {
     close,
     setCalendarOpen,
     blockedDates,
+    onIncludeBlockedDates,
   } = useContext(CalendarDateContext);
 
   const ref = useOutsideClick(close, false);
 
-  if (!calendarOpen) return null;
-
   const blockedDatesInCalendar = (blockedDates) => {
-    const allBlockedDates = [];
-    blockedDates.map((dateRange) => {
-      const startDate = new Date(dateRange.startDate);
-      const endDate = addDays(new Date(dateRange.endDate), -1);
+    let allBlockedDates = [];
 
-      while (startDate < endDate)
-        allBlockedDates.push(
-          new Date(startDate.setDate(startDate.getDate() + 1))
-        );
+    blockedDates.map((dateRange) => {
+      allBlockedDates = createDateRange(
+        dateRange.startDate,
+        dateRange.endDate,
+        false,
+        allBlockedDates
+      );
     });
     return allBlockedDates;
   };
@@ -151,6 +171,28 @@ function Calendar() {
       return "react-calendar-tile-blocked-right";
     }
   };
+
+  useEffect(() => {
+    let overlapped = false;
+    const allBookedDates = createDateRange(dates[0], dates[1], true);
+
+    allBookedDates.map((bookedDay) => {
+      allBlockedDates.some((blockedDay) => {
+        if (isEqual(blockedDay, bookedDay)) {
+          // console.log(
+          //   `${isEqual(
+          //     blockedDay,
+          //     bookedDay
+          //   )}: bookedDay: ${bookedDay} / blockedDate: ${blockedDay} (${blockedDay.getTime()} / ${blockedDay.getTime()})`
+          // );
+          overlapped = true;
+        }
+      });
+    });
+    return onIncludeBlockedDates(overlapped);
+  }, [dates]);
+
+  if (!calendarOpen) return null;
 
   return createPortal(
     <StyledCalendar position={position} ref={ref}>
