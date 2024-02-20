@@ -18,7 +18,13 @@ const StyledCalendar = styled.div`
     border-radius: 2px;
     border: 1px solid var(--color-grey-300);
     padding: 1.2rem 0;
+    background: var(--color-grey-0);
   }
+
+  .react-calendar__navigation button:disabled {
+    background-color: var(--color-grey-0);
+  }
+
   .react-calendar__month-view__days__day--weekend {
     color: var(--color-grey-400);
     font-weight: 500;
@@ -50,13 +56,13 @@ const StyledCalendar = styled.div`
   }
 
   .react-calendar__tile--hasActive {
-    background: var(--color-indigo-700);
-    color: white;
+    background: var(--color-indigo-300);
+    color: var(--color-grey-700);
   }
 
   .react-calendar__tile--active {
-    background: var(--color-indigo-700);
-    color: white;
+    background: var(--color-indigo-300);
+    color: var(--color-grey-700);
   }
 
   .react-calendar__tile {
@@ -106,6 +112,54 @@ const StyledCalendar = styled.div`
       transparent 50%,
       var(--color-grey-200) 0%
     );
+  }
+
+  .react-calendar__tile--rangeStart {
+    width: 100%;
+    height: 100%;
+    color: var(--color-grey-700);
+    background: linear-gradient(
+      to bottom right,
+      transparent 50%,
+      var(--color-indigo-300) 0%
+    );
+  }
+
+  .react-calendar__tile--rangeEnd {
+    width: 100%;
+    height: 100%;
+    color: var(--color-grey-700);
+    background: linear-gradient(
+      to top left,
+      transparent 50%,
+      var(--color-indigo-300) 0%
+    );
+  }
+
+  .react-calendar-tile-blocked-left-start {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to top left,
+        transparent 50%,
+        var(--color-grey-200) 0%
+      ),
+      linear-gradient(
+        to bottom right,
+        transparent 50%,
+        var(--color-indigo-300) 0%
+      );
+  }
+
+  .react-calendar-tile-blocked-right-end {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom right,
+        transparent 50%,
+        var(--color-grey-200) 0%
+      ),
+      linear-gradient(to top left, transparent 50%, var(--color-indigo-300) 0%);
   }
 `;
 

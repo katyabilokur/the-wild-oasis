@@ -6,6 +6,7 @@ import { styled } from "styled-components";
 import { Calendar as CalendarReact } from "react-calendar";
 import { format, addDays, isEqual } from "date-fns";
 import StyledCalendar from "./css/StyledCalendar";
+import { useSettings } from "../features/settings/useSettings";
 
 const createDateRange = (
   startDate,
@@ -57,15 +58,24 @@ function CalendarDateSelector({
   onDateSelection,
   onIncludeBlockedDates,
 }) {
+  const { settings } = useSettings();
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [dates, setDates] = useState([new Date(), addDays(new Date(), 1)]);
+  // const [dates, setDates] = useState([new Date(), addDays(new Date(), 1)]);
+  const [dates, setDates] = useState(() => {
+    return [new Date(), addDays(new Date(), 1)];
+  });
   const [position, setPosition] = useState(null);
-  const [includeBlockedDates, setIncludeBlockedDates] = useState(false);
   const close = () => setCalendarOpen((open) => !open);
+
+  console.log(settings);
 
   useEffect(() => {
     onDateSelection(dates);
   }, [dates]);
+
+  useEffect(() => {
+    setDates([new Date(), addDays(new Date(), +settings.minBookingLength)]);
+  }, [settings]);
 
   return (
     <CalendarDateContext.Provider
@@ -161,6 +171,9 @@ function Calendar() {
         .map((block) => block.startDate)
         .some((day) => isEqual(day, date))
     ) {
+      if (isEqual(date, dates[1].setHours(0, 0, 0, 0)))
+        return "react-calendar-tile-blocked-right-end";
+
       return "react-calendar-tile-blocked-left";
     }
     if (
@@ -168,6 +181,9 @@ function Calendar() {
         .map((block) => block.endDate)
         .some((day) => isEqual(day, date))
     ) {
+      if (isEqual(date, dates[0].setHours(0, 0, 0, 0)))
+        return "react-calendar-tile-blocked-left-start";
+
       return "react-calendar-tile-blocked-right";
     }
   };

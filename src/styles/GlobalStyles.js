@@ -29,6 +29,7 @@ const GlobalStyles = createGlobalStyle`
   --color-silver-700: #374151;
   --color-indigo-100: #e0e7ff;
   --color-indigo-700: #4338ca;
+  --color-indigo-300: #a5b4fc;
 
   --color-red-100: #fee2e2;
   --color-red-700: #b91c1c;
@@ -68,6 +69,7 @@ const GlobalStyles = createGlobalStyle`
 --color-silver-700: #f3f4f6;
 --color-indigo-100: #3730a3;
 --color-indigo-700: #e0e7ff;
+--color-indigo-300: #4338ca;
 
 --color-red-100: #fee2e2;
 --color-red-700: #b91c1c;
