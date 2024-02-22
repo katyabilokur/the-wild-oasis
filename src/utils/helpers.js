@@ -1,4 +1,9 @@
-import { formatDistance, parseISO } from "date-fns";
+import {
+  addDays,
+  formatDistance,
+  formatDistanceStrict,
+  parseISO,
+} from "date-fns";
 import { differenceInDays } from "date-fns";
 // import { differenceInDays, formatDistance, parseISO } from 'date-fns';
 
@@ -29,3 +34,38 @@ export const formatCurrency = (value) =>
   new Intl.NumberFormat("en", { style: "currency", currency: "USD" }).format(
     value
   );
+
+export const createDateRange = (
+  startDate,
+  endDate,
+  includeStart = false,
+  existingDateRange = []
+) => {
+  const allDates = [...existingDateRange];
+
+  const sDate = new Date(new Date(startDate).setHours(0, 0, 0, 0));
+  const eDate = addDays(
+    new Date(new Date(endDate).setHours(0, 0, 0, 0)),
+    includeStart ? 0 : -1
+  );
+
+  if (includeStart)
+    allDates.push(new Date(new Date(startDate).setHours(0, 0, 0, 0)));
+
+  while (sDate < eDate)
+    allDates.push(new Date(sDate.setDate(sDate.getDate() + 1)));
+
+  return allDates;
+};
+
+export const bookingLength = (dates) => {
+  return dates
+    ? +formatDistanceStrict(
+        dates[0].setHours(0, 0, 0, 0),
+        dates[1].setHours(0, 0, 0, 0),
+        {
+          unit: "day",
+        }
+      ).split(" ")[0]
+    : 0;
+};

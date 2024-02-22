@@ -7,24 +7,7 @@ import { Calendar as CalendarReact } from "react-calendar";
 import { format, addDays, isEqual } from "date-fns";
 import StyledCalendar from "./css/StyledCalendar";
 import { useSettings } from "../features/settings/useSettings";
-
-const createDateRange = (
-  startDate,
-  endDate,
-  includeStart = false,
-  existingDateRange = []
-) => {
-  const allDates = [...existingDateRange];
-
-  const sDate = new Date(startDate);
-  const eDate = addDays(new Date(endDate), includeStart ? -2 : -1);
-  if (includeStart) allDates.push(new Date(startDate));
-
-  while (sDate < eDate)
-    allDates.push(new Date(sDate.setDate(sDate.getDate() + 1)));
-
-  return allDates;
-};
+import { createDateRange } from "../utils/helpers";
 
 const StyledToggleField = styled.div`
   border: 1px solid var(--color-grey-300);
@@ -49,6 +32,8 @@ const StyledSvg = styled.div`
 
 const StyledDate = styled.p``;
 
+//----------------
+
 const CalendarDateContext = createContext();
 
 function CalendarDateSelector({
@@ -60,22 +45,33 @@ function CalendarDateSelector({
 }) {
   const { settings } = useSettings();
   const [calendarOpen, setCalendarOpen] = useState(false);
-  // const [dates, setDates] = useState([new Date(), addDays(new Date(), 1)]);
-  const [dates, setDates] = useState(() => {
-    return [new Date(), addDays(new Date(), 1)];
-  });
+  const [dates, setDates] = useState([new Date(), addDays(new Date(), 1)]);
+  // const [dates, setDates] = useState(() => {
+  //   return [new Date(), addDays(new Date(), 1)];
+  // });
+
   const [position, setPosition] = useState(null);
+  const [allBookedDates, setAllBookedDates] = useState(() =>
+    createDateRange(dates[0], dates[1], true)
+  );
   const close = () => setCalendarOpen((open) => !open);
 
-  console.log(settings);
+  useEffect(() => {
+    setDates([new Date(), addDays(new Date(), +settings?.minBookingLength)]);
+
+    onDateSelection([
+      new Date(),
+      addDays(new Date(), +settings?.minBookingLength),
+    ]);
+  }, [settings]);
+
+  useEffect(() => {
+    setAllBookedDates(createDateRange(dates[0], dates[1], true));
+  }, [dates]);
 
   useEffect(() => {
     onDateSelection(dates);
   }, [dates]);
-
-  useEffect(() => {
-    setDates([new Date(), addDays(new Date(), +settings.minBookingLength)]);
-  }, [settings]);
 
   return (
     <CalendarDateContext.Provider
@@ -90,6 +86,8 @@ function CalendarDateSelector({
         isLoading,
         blockedDates,
         onIncludeBlockedDates,
+        allBookedDates,
+        setAllBookedDates,
       }}
     >
       {children}
@@ -145,6 +143,9 @@ function Calendar() {
     setCalendarOpen,
     blockedDates,
     onIncludeBlockedDates,
+    allBookedDates,
+    onDateSelection,
+    setAllBookedDates,
   } = useContext(CalendarDateContext);
 
   const ref = useOutsideClick(close, false);
@@ -164,6 +165,7 @@ function Calendar() {
   };
 
   const allBlockedDates = blockedDatesInCalendar(blockedDates);
+  //const allBookedDates = createDateRange(dates[0], dates[1], true);
 
   const tileHalfBlockedClassAdd = ({ date }) => {
     if (
@@ -189,18 +191,54 @@ function Calendar() {
   };
 
   useEffect(() => {
+    //TODO: refactor repeated code
+    let overlapped = true;
+    let i = 0;
+    // console.log("Booked dates");
+    console.log(allBookedDates);
+    // console.log("Blocked");
+    // console.log(allBlockedDates);
+
+    //----
+    //while (overlapped)
+    while (i < 10) {
+      overlapped = false;
+      i++;
+      console.log(i);
+      console.log(allBookedDates);
+      console.log(dates);
+
+      allBookedDates.map((bookedDay) => {
+        allBlockedDates.some((blockedDay) => {
+          if (
+            isEqual(
+              blockedDay.setHours(0, 0, 0, 0),
+              bookedDay.setHours(0, 0, 0, 0)
+            )
+          ) {
+            overlapped = true;
+            // console.log("Equal");
+            // console.log(
+            //   blockedDay.setHours(0, 0, 0, 0),
+            //   bookedDay.setHours(0, 0, 0, 0)
+            // );
+          }
+        });
+      });
+      // console.log(overlapped);
+
+      console.log(overlapped);
+      if (overlapped)
+        setDates((dates) => [addDays(dates[0], 1), addDays(dates[1], 1)]);
+    }
+  }, []);
+
+  useEffect(() => {
     let overlapped = false;
-    const allBookedDates = createDateRange(dates[0], dates[1], true);
 
     allBookedDates.map((bookedDay) => {
       allBlockedDates.some((blockedDay) => {
         if (isEqual(blockedDay, bookedDay)) {
-          // console.log(
-          //   `${isEqual(
-          //     blockedDay,
-          //     bookedDay
-          //   )}: bookedDay: ${bookedDay} / blockedDate: ${blockedDay} (${blockedDay.getTime()} / ${blockedDay.getTime()})`
-          // );
           overlapped = true;
         }
       });
@@ -210,12 +248,17 @@ function Calendar() {
 
   if (!calendarOpen) return null;
 
+  const handleBookedDates = (value) => {
+    setAllBookedDates(createDateRange(value[0], value[1], true));
+  };
+
   return createPortal(
     <StyledCalendar position={position} ref={ref}>
       <CalendarReact
         minDetail="month"
         onChange={(value) => {
           setDates(value);
+          handleBookedDates(value);
           setCalendarOpen(false);
         }}
         value={dates}

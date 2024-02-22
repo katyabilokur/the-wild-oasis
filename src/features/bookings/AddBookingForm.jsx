@@ -10,8 +10,8 @@ import { useCabinBlockedDates } from "../cabins/useCabinBlockedDates";
 import Spinner from "../../ui/Spinner";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
-import { addDays, format, formatDistanceStrict } from "date-fns";
 import { useSettings } from "../settings/useSettings";
+import { bookingLength as bookingLengthDays } from "../../utils/helpers";
 
 function AddBookingForm({ cabinToBook, onClose }) {
   const { register, formState, getValues, handleSubmit, reset } = useForm();
@@ -22,6 +22,9 @@ function AddBookingForm({ cabinToBook, onClose }) {
 
   const { isLoading, dates } = useCabinBlockedDates(cabinToBook.id);
   const [datesSelected, setDatesSelected] = useState();
+  const [bookingLength, setBookingLength] = useState(() =>
+    bookingLengthDays(datesSelected)
+  );
   const [includeBlockedDates, setIncludeBlockedDates] = useState(false);
 
   function handleDateSelection(dates) {
@@ -36,17 +39,18 @@ function AddBookingForm({ cabinToBook, onClose }) {
     reset({ startDate: datesSelected?.[0], endDate: datesSelected?.[1] });
   }, [datesSelected]);
 
-  const bookingLength = datesSelected
-    ? +formatDistanceStrict(datesSelected[0], datesSelected[1], {
-        unit: "day",
-      }).split(" ")[0] - 1
-    : 0;
-  // console.log(errors?.endDate);
+  useEffect(() => {
+    //  console.log(`datesSelected: ${datesSelected}`);
+    setBookingLength(bookingLengthDays(datesSelected));
+  }, [datesSelected]);
 
   // //TEST
   // useEffect(() => {
-  //   console.log(`Dates on change: ${datesSelected}`);
+  //   console.log(`Dates selected: ${datesSelected}`);
   // }, [datesSelected]);
+  // useEffect(() => {
+  //   console.log(`Lenght:  ${bookingLength}`);
+  // }, [bookingLength]);
 
   function onSubmit({ startDate, endDate, name }) {
     console.log(`START date: ${startDate}`);
