@@ -69,3 +69,17 @@ export const bookingLength = (dates) => {
       ).split(" ")[0]
     : 0;
 };
+
+export const blockedDatesInCalendar = (blockedDates) => {
+  let allBlockedDates = [];
+
+  blockedDates.map((dateRange) => {
+    allBlockedDates = createDateRange(
+      dateRange.startDate,
+      dateRange.endDate,
+      false,
+      allBlockedDates
+    );
+  });
+  return allBlockedDates;
+};

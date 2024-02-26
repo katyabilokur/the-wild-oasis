@@ -7,7 +7,8 @@ import { Calendar as CalendarReact } from "react-calendar";
 import { format, addDays, isEqual } from "date-fns";
 import StyledCalendar from "./css/StyledCalendar";
 import { useSettings } from "../features/settings/useSettings";
-import { createDateRange } from "../utils/helpers";
+import { blockedDatesInCalendar, createDateRange } from "../utils/helpers";
+import Spinner from "./Spinner";
 
 const StyledToggleField = styled.div`
   border: 1px solid var(--color-grey-300);
@@ -46,23 +47,31 @@ function CalendarDateSelector({
   const { settings } = useSettings();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [dates, setDates] = useState([new Date(), addDays(new Date(), 1)]);
-  // const [dates, setDates] = useState(() => {
-  //   return [new Date(), addDays(new Date(), 1)];
-  // });
+  const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
 
   const [position, setPosition] = useState(null);
   const [allBookedDates, setAllBookedDates] = useState(() =>
     createDateRange(dates[0], dates[1], true)
   );
+  const [allBlockedDates, setAllBlockedDates] = useState(() =>
+    blockedDatesInCalendar(blockedDates)
+  );
   const close = () => setCalendarOpen((open) => !open);
 
+  //In case someone else is booking this cabin at the same time, blocked dates will be updated
   useEffect(() => {
+    setAllBlockedDates(blockedDatesInCalendar(blockedDates));
+  }, [blockedDates]);
+
+  useEffect(() => {
+    setIsLoadingCalendar(true);
     setDates([new Date(), addDays(new Date(), +settings?.minBookingLength)]);
 
     onDateSelection([
       new Date(),
       addDays(new Date(), +settings?.minBookingLength),
     ]);
+    setIsLoadingCalendar(false);
   }, [settings]);
 
   useEffect(() => {
@@ -72,6 +81,56 @@ function CalendarDateSelector({
   useEffect(() => {
     onDateSelection(dates);
   }, [dates]);
+
+  //Making sure dates selected by default are not blocked. Otherwise selecting new valid dates
+  useEffect(() => {
+    setIsLoadingCalendar(true);
+    let currentDates = [
+      new Date(),
+      addDays(new Date(), +settings?.minBookingLength),
+    ];
+    let currentlyBookedDates = createDateRange(
+      currentDates[0],
+      currentDates[1],
+      true
+    );
+
+    let overlapped = true;
+
+    while (overlapped) {
+      overlapped = false;
+
+      currentlyBookedDates.map((bookedDay) => {
+        allBlockedDates.some((blockedDay) => {
+          if (
+            isEqual(
+              blockedDay.setHours(0, 0, 0, 0),
+              bookedDay.setHours(0, 0, 0, 0)
+            )
+          ) {
+            overlapped = true;
+          }
+        });
+      });
+
+      if (overlapped) {
+        currentDates = [
+          addDays(currentDates[0], 1),
+          addDays(currentDates[1], 1),
+        ];
+        currentlyBookedDates = createDateRange(
+          currentDates[0],
+          currentDates[1],
+          true
+        );
+      }
+    }
+
+    setDates(currentDates);
+    setIsLoadingCalendar(false);
+  }, [settings]);
+
+  if (isLoadingCalendar) return <Spinner />;
 
   return (
     <CalendarDateContext.Provider
@@ -88,6 +147,7 @@ function CalendarDateSelector({
         onIncludeBlockedDates,
         allBookedDates,
         setAllBookedDates,
+        allBlockedDates,
       }}
     >
       {children}
@@ -113,15 +173,7 @@ function ToggleField() {
 
   return (
     <>
-      {/* error={errors?.name?.message} */}
-      <StyledToggleField
-        // type="text"
-        // id="dates"
-
-        // {...register("name", { required: "This field is required" })}
-        disabled={isLoading}
-        onClick={handleCalendarOpen}
-      >
+      <StyledToggleField disabled={isLoading} onClick={handleCalendarOpen}>
         <StyledSvg>
           <HiCalendar />
         </StyledSvg>
@@ -146,26 +198,10 @@ function Calendar() {
     allBookedDates,
     onDateSelection,
     setAllBookedDates,
+    allBlockedDates,
   } = useContext(CalendarDateContext);
 
   const ref = useOutsideClick(close, false);
-
-  const blockedDatesInCalendar = (blockedDates) => {
-    let allBlockedDates = [];
-
-    blockedDates.map((dateRange) => {
-      allBlockedDates = createDateRange(
-        dateRange.startDate,
-        dateRange.endDate,
-        false,
-        allBlockedDates
-      );
-    });
-    return allBlockedDates;
-  };
-
-  const allBlockedDates = blockedDatesInCalendar(blockedDates);
-  //const allBookedDates = createDateRange(dates[0], dates[1], true);
 
   const tileHalfBlockedClassAdd = ({ date }) => {
     if (
@@ -189,49 +225,6 @@ function Calendar() {
       return "react-calendar-tile-blocked-right";
     }
   };
-
-  useEffect(() => {
-    //TODO: refactor repeated code
-    let overlapped = true;
-    let i = 0;
-    // console.log("Booked dates");
-    console.log(allBookedDates);
-    // console.log("Blocked");
-    // console.log(allBlockedDates);
-
-    //----
-    //while (overlapped)
-    while (i < 10) {
-      overlapped = false;
-      i++;
-      console.log(i);
-      console.log(allBookedDates);
-      console.log(dates);
-
-      allBookedDates.map((bookedDay) => {
-        allBlockedDates.some((blockedDay) => {
-          if (
-            isEqual(
-              blockedDay.setHours(0, 0, 0, 0),
-              bookedDay.setHours(0, 0, 0, 0)
-            )
-          ) {
-            overlapped = true;
-            // console.log("Equal");
-            // console.log(
-            //   blockedDay.setHours(0, 0, 0, 0),
-            //   bookedDay.setHours(0, 0, 0, 0)
-            // );
-          }
-        });
-      });
-      // console.log(overlapped);
-
-      console.log(overlapped);
-      if (overlapped)
-        setDates((dates) => [addDays(dates[0], 1), addDays(dates[1], 1)]);
-    }
-  }, []);
 
   useEffect(() => {
     let overlapped = false;
