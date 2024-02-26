@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useSettings } from "../settings/useSettings";
 import { bookingLength as bookingLengthDays } from "../../utils/helpers";
+import { HiOutlineDocumentSearch, HiOutlineSearch } from "react-icons/hi";
 
 function AddBookingForm({ cabinToBook, onClose }) {
   const { register, formState, getValues, handleSubmit, reset } = useForm();
@@ -102,15 +103,15 @@ function AddBookingForm({ cabinToBook, onClose }) {
         })}
       />
 
-      {/* Guest name */}
-      {/* Guest id/search existing user */}
-      {/* Guest email/search existing user */}
-      {/* Guest numbers */}
-
-      {/* Breakfast included */}
-      {/* Paid on booking*/}
-
-      <FormRow label="Cabin name">
+      {/* <div> */}
+      <FormRow
+        label="Search user by email or ID"
+        icon={<HiOutlineDocumentSearch />}
+        button={<HiOutlineSearch />}
+      >
+        <Input type="text" id="search" />
+      </FormRow>
+      <FormRow label="Main guest full name">
         {/* error={errors?.name?.message} */}
         <Input
           type="text"
@@ -119,6 +120,41 @@ function AddBookingForm({ cabinToBook, onClose }) {
           {...register("name")}
         />
       </FormRow>
+      <FormRow label="Email">
+        {/* error={errors?.name?.message} */}
+        <Input
+          type="text"
+          id="email"
+          // disabled={isWorking}
+          {...register("email")}
+        />
+      </FormRow>
+      <FormRow label="Passport">
+        {/* error={errors?.name?.message} */}
+        <Input
+          type="text"
+          id="passport"
+          // disabled={isWorking}
+          {...register("passport")}
+        />
+      </FormRow>
+      <FormRow label="Nationality">
+        {/* error={errors?.name?.message} */}
+        <Input
+          type="text"
+          id="nationality"
+          // disabled={isWorking}
+          {...register("nationality")}
+        />
+      </FormRow>
+
+      {/* </div> */}
+      {/* Guest name */}
+      {/* Guest id/search existing user */}
+      {/* Guest email/search existing user */}
+      {/* Guest numbers */}
+      {/* Breakfast included */}
+      {/* Paid on booking*/}
       <FormRow>
         <Button variation="secondary" type="reset" onClick={() => onClose?.()}>
           Cancel

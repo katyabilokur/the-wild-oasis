@@ -25,7 +25,7 @@ const StyledToggleField = styled.div`
   cursor: pointer;
 `;
 
-const StyledSvg = styled.div`
+const StyledCalendarDiv = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -127,6 +127,7 @@ function CalendarDateSelector({
     }
 
     setDates(currentDates);
+    setAllBookedDates(currentlyBookedDates);
     setIsLoadingCalendar(false);
   }, [settings]);
 
@@ -170,13 +171,14 @@ function ToggleField() {
 
     setCalendarOpen((open) => !open);
   }
+  console.log(dates);
 
   return (
     <>
       <StyledToggleField disabled={isLoading} onClick={handleCalendarOpen}>
-        <StyledSvg>
+        <StyledCalendarDiv>
           <HiCalendar />
-        </StyledSvg>
+        </StyledCalendarDiv>
         <StyledDate>{format(dates[0], "dd MMM")}</StyledDate>
         &mdash;
         <StyledDate>{format(dates[1], "dd MMM")}</StyledDate>

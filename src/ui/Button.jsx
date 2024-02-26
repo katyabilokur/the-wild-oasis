@@ -18,6 +18,9 @@ const sizes = {
     padding: 1.2rem 2.4rem;
     font-weight: 500;
   `,
+  smallIcon: css`
+    padding: 0.8rem 0.8rem;
+  `,
 };
 
 const variations = {
@@ -46,12 +49,25 @@ const variations = {
       background-color: var(--color-red-800);
     }
   `,
+  light: css`
+    color: var(--color-brand-50);
+    background: var(--color-brand-500);
+
+    &:hover {
+      background-color: var(--color-brand-600);
+    }
+  `,
 };
 
 const Button = styled.button`
   border: none;
   border-radius: var(--border-radius-sm);
   box-shadow: var(--shadow-sm);
+
+  & svg {
+    width: 2rem;
+    height: 2rem;
+  }
 
   ${(props) => sizes[props.size]}
   ${(props) => variations[props.variation]}

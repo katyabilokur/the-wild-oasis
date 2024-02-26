@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import Button from "./Button";
 
 const StyledFormRow = styled.div`
   display: grid;
@@ -20,10 +21,33 @@ const StyledFormRow = styled.div`
     border-bottom: 1px solid var(--color-grey-100);
   }
 
-  &:has(button) {
+  &:not(:has(label)) {
     display: flex;
     justify-content: flex-end;
     gap: 1.2rem;
+  }
+`;
+
+const StyledButtonInput = styled.div`
+  /* display: flex;
+  gap: 0.6rem;
+  width: 100%;
+  justify-content: stretch; */
+  display: grid;
+  align-items: center;
+  grid-template-columns: 7fr 1fr;
+  gap: 0.6rem;
+`;
+
+const IconSet = styled.div`
+  display: flex;
+  gap: 1rem;
+  color: var(--color-grey-400);
+
+  & svg {
+    width: 2.2rem;
+    height: 2.2rem;
+    color: var(--color-brand-500);
   }
 `;
 
@@ -36,11 +60,25 @@ const Error = styled.span`
   color: var(--color-red-700);
 `;
 
-function FormRow({ label, error, children }) {
+function FormRow({ label, error, children, icon = null, button = null }) {
   return (
     <StyledFormRow>
-      {label && <Label htmlFor={children.props.id}>{label}</Label>}
-      {children}
+      {label && icon && (
+        <IconSet>
+          {icon}
+          <Label htmlFor={children.props.id}>{label}</Label>
+        </IconSet>
+      )}
+      {label && !icon && <Label htmlFor={children.props.id}>{label}</Label>}
+      {!button && children}
+      {button && (
+        <StyledButtonInput>
+          {children}
+          <Button variation="light" size="smallIcon">
+            {button}
+          </Button>
+        </StyledButtonInput>
+      )}
       {error && <Error>{error}</Error>}
     </StyledFormRow>
   );
