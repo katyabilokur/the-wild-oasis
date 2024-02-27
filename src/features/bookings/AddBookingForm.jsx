@@ -13,12 +13,14 @@ import { useEffect, useState } from "react";
 import { useSettings } from "../settings/useSettings";
 import { bookingLength as bookingLengthDays } from "../../utils/helpers";
 import { HiOutlineDocumentSearch, HiOutlineSearch } from "react-icons/hi";
+import { useGuest } from "../guests/useGuest";
+import { toast } from "react-hot-toast";
 
 function AddBookingForm({ cabinToBook, onClose }) {
   const { register, formState, getValues, handleSubmit, reset } = useForm();
   const { errors } = formState;
 
-  //maxBookingLength maxGuestsPerBooking minBookingLength
+  //FOR DATES
   const { settings } = useSettings();
 
   const { isLoading, dates } = useCabinBlockedDates(cabinToBook.id);
@@ -28,6 +30,17 @@ function AddBookingForm({ cabinToBook, onClose }) {
   );
   const [includeBlockedDates, setIncludeBlockedDates] = useState(false);
 
+  //FOR USER SERACH
+  //1233212288
+  const [searchValue, setSearchValue] = useState("");
+  const [searchedGuest, setSearchedGuest] = useState(null);
+
+  const {
+    searchGuest,
+    guest,
+    isLoading: isLoadingGuest,
+  } = useGuest(searchValue);
+
   function handleDateSelection(dates) {
     setDatesSelected(dates);
   }
@@ -36,12 +49,34 @@ function AddBookingForm({ cabinToBook, onClose }) {
     setIncludeBlockedDates(include);
   }
 
+  function handleSearch(e) {
+    e.preventDefault();
+    searchGuest(searchValue);
+    setSearchedGuest(guest);
+
+    console.log(guest);
+
+    if (guest) toast.success("Existing guest was found");
+    if (!guest)
+      toast.error(
+        `No guest with '${searchValue}' email or ID has been found. Please add new guest details.`
+      );
+  }
+
+  useEffect(() => {
+    reset({
+      fullName: searchedGuest ? searchedGuest.fullName : "",
+      email: searchedGuest ? searchedGuest.email : "",
+      nationalID: searchedGuest ? searchedGuest.nationalID : "",
+      nationality: searchedGuest ? searchedGuest.nationality : "",
+    });
+  }, [searchedGuest]);
+
   useEffect(() => {
     reset({ startDate: datesSelected?.[0], endDate: datesSelected?.[1] });
   }, [datesSelected]);
 
   useEffect(() => {
-    //  console.log(`datesSelected: ${datesSelected}`);
     setBookingLength(bookingLengthDays(datesSelected));
   }, [datesSelected]);
 
@@ -53,10 +88,20 @@ function AddBookingForm({ cabinToBook, onClose }) {
   //   console.log(`Lenght:  ${bookingLength}`);
   // }, [bookingLength]);
 
-  function onSubmit({ startDate, endDate, name }) {
+  function onSubmit({
+    startDate,
+    endDate,
+    fullName,
+    email,
+    nationalID,
+    nationality,
+  }) {
     console.log(`START date: ${startDate}`);
     console.log(`END date: ${endDate}`);
-    console.log(name);
+    console.log(fullName);
+    console.log(email);
+    console.log(nationalID);
+    console.log(nationality);
   }
 
   if (isLoading) return <Spinner />;
@@ -107,44 +152,56 @@ function AddBookingForm({ cabinToBook, onClose }) {
       <FormRow
         label="Search user by email or ID"
         icon={<HiOutlineDocumentSearch />}
-        button={<HiOutlineSearch />}
+        button={{
+          icon: <HiOutlineSearch />,
+          onButtonClick: handleSearch,
+          disabled: searchValue === "",
+        }}
       >
-        <Input type="text" id="search" />
+        <Input
+          type="text"
+          id="search"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+        />
       </FormRow>
-      <FormRow label="Main guest full name">
+      <FormRow label="Main guest full name" error={errors?.fullName?.message}>
         {/* error={errors?.name?.message} */}
         <Input
           type="text"
-          id="name"
-          // disabled={isWorking}
-          {...register("name")}
+          id="fullName"
+          disabled={searchedGuest !== null || isLoadingGuest}
+          {...register("fullName", { required: "This field is required" })}
         />
       </FormRow>
-      <FormRow label="Email">
-        {/* error={errors?.name?.message} */}
+      <FormRow label="Email" error={errors?.email?.message}>
         <Input
           type="text"
           id="email"
-          // disabled={isWorking}
-          {...register("email")}
+          disabled={searchedGuest !== null || isLoadingGuest}
+          {...register("email", {
+            required: "This field is required",
+            pattern: {
+              value: /\S+@\S+\.\S+/,
+              message: "Please provide a valid email address",
+            },
+          })}
         />
       </FormRow>
-      <FormRow label="Passport">
-        {/* error={errors?.name?.message} */}
+      <FormRow label="National ID/Passport" error={errors?.nationalID?.message}>
         <Input
           type="text"
-          id="passport"
-          // disabled={isWorking}
-          {...register("passport")}
+          id="nationalID"
+          disabled={searchedGuest !== null || isLoadingGuest}
+          {...register("nationalID", { required: "This field is required" })}
         />
       </FormRow>
-      <FormRow label="Nationality">
-        {/* error={errors?.name?.message} */}
+      <FormRow label="Nationality" error={errors?.nationality?.message}>
         <Input
           type="text"
           id="nationality"
-          // disabled={isWorking}
-          {...register("nationality")}
+          disabled={searchedGuest !== null || isLoadingGuest}
+          {...register("nationality", { required: "This field is required" })}
         />
       </FormRow>
 
@@ -159,9 +216,15 @@ function AddBookingForm({ cabinToBook, onClose }) {
         <Button variation="secondary" type="reset" onClick={() => onClose?.()}>
           Cancel
         </Button>
-        <Button>
-          Save booking
-          {/* {isEditSession ? "Creating booking..." : "Save booking"} */}
+        <Button
+          variation="light"
+          disabled={!searchedGuest}
+          onClick={() => setSearchedGuest(null)}
+        >
+          Clear guest
+        </Button>
+        <Button disabled={isLoadingGuest}>
+          {isLoadingGuest ? "Loading data..." : "Save booking"}
         </Button>
       </FormRow>
     </Form>

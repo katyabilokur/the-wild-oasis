@@ -74,8 +74,13 @@ function FormRow({ label, error, children, icon = null, button = null }) {
       {button && (
         <StyledButtonInput>
           {children}
-          <Button variation="light" size="smallIcon">
-            {button}
+          <Button
+            variation="light"
+            size="smallIcon"
+            onClick={button.onButtonClick}
+            disabled={button.disabled}
+          >
+            {button.icon}
           </Button>
         </StyledButtonInput>
       )}

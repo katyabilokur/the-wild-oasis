@@ -51,10 +51,14 @@ const variations = {
   `,
   light: css`
     color: var(--color-brand-50);
-    background: var(--color-brand-500);
+    background: var(--color-brand-400);
 
     &:hover {
-      background-color: var(--color-brand-600);
+      background-color: var(--color-brand-800);
+    }
+
+    &:disabled {
+      background-color: var(--color-brand-200);
     }
   `,
 };

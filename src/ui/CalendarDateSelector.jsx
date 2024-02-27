@@ -171,7 +171,7 @@ function ToggleField() {
 
     setCalendarOpen((open) => !open);
   }
-  console.log(dates);
+  //console.log(dates);
 
   return (
     <>
