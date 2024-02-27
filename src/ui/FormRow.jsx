@@ -4,7 +4,7 @@ import Button from "./Button";
 const StyledFormRow = styled.div`
   display: grid;
   align-items: center;
-  grid-template-columns: 24rem 1fr 1.2fr;
+  grid-template-columns: 24rem minmax(20rem, 1fr) 1.2fr;
   gap: 2.4rem;
 
   padding: 1.2rem 0;

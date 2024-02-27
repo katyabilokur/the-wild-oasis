@@ -3,6 +3,7 @@ import Form from "../../ui/Form";
 import FormRow from "../../ui/FormRow";
 import FormRowHeader from "../../ui/FormRowHeader";
 import Input from "../../ui/Input";
+import Select from "../../ui/Select";
 import "react-calendar/dist/Calendar.css";
 import CalendarDateSelector from "../../ui/CalendarDateSelector";
 import Modal from "../../ui/Modal";
@@ -15,9 +16,10 @@ import { bookingLength as bookingLengthDays } from "../../utils/helpers";
 import { HiOutlineDocumentSearch, HiOutlineSearch } from "react-icons/hi";
 import { useGuest } from "../guests/useGuest";
 import { toast } from "react-hot-toast";
+import { getNames } from "country-list";
 
 function AddBookingForm({ cabinToBook, onClose }) {
-  const { register, formState, getValues, handleSubmit, reset } = useForm();
+  const { register, formState, handleSubmit, reset } = useForm();
   const { errors } = formState;
 
   //FOR DATES
@@ -31,9 +33,10 @@ function AddBookingForm({ cabinToBook, onClose }) {
   const [includeBlockedDates, setIncludeBlockedDates] = useState(false);
 
   //FOR USER SERACH
-  //1233212288
   const [searchValue, setSearchValue] = useState("");
   const [searchedGuest, setSearchedGuest] = useState(null);
+
+  const countries = getNames();
 
   const {
     searchGuest,
@@ -148,7 +151,6 @@ function AddBookingForm({ cabinToBook, onClose }) {
         })}
       />
 
-      {/* <div> */}
       <FormRow
         label="Search user by email or ID"
         icon={<HiOutlineDocumentSearch />}
@@ -166,7 +168,6 @@ function AddBookingForm({ cabinToBook, onClose }) {
         />
       </FormRow>
       <FormRow label="Main guest full name" error={errors?.fullName?.message}>
-        {/* error={errors?.name?.message} */}
         <Input
           type="text"
           id="fullName"
@@ -197,21 +198,20 @@ function AddBookingForm({ cabinToBook, onClose }) {
         />
       </FormRow>
       <FormRow label="Nationality" error={errors?.nationality?.message}>
-        <Input
-          type="text"
+        <Select
+          options={countries}
+          instruction="Select country"
           id="nationality"
+          value={searchedGuest?.nationality}
           disabled={searchedGuest !== null || isLoadingGuest}
           {...register("nationality", { required: "This field is required" })}
-        />
+        ></Select>
       </FormRow>
 
-      {/* </div> */}
-      {/* Guest name */}
-      {/* Guest id/search existing user */}
-      {/* Guest email/search existing user */}
       {/* Guest numbers */}
       {/* Breakfast included */}
       {/* Paid on booking*/}
+
       <FormRow>
         <Button variation="secondary" type="reset" onClick={() => onClose?.()}>
           Cancel
