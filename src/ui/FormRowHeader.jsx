@@ -11,6 +11,11 @@ const StyledFormRow = styled.div`
 
 const Name = styled.p`
   font-weight: 700;
+  font-size: 2rem;
+
+  & span {
+    color: var(--color-brand-700);
+  }
 `;
 
 const Img = styled.img`
@@ -26,7 +31,12 @@ function FormRowHeader({ name, img }) {
   return (
     <StyledFormRow>
       {img && <Img src={img} />}
-      {name && <Name>{`A new booking of cabin '${name}'`}</Name>}
+      {name && (
+        <Name>
+          {`A new booking for cabin "`}
+          <span>{name}</span> {`"`}
+        </Name>
+      )}
     </StyledFormRow>
   );
 }

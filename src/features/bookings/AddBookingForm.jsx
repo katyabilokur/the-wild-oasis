@@ -17,6 +17,9 @@ import { HiOutlineDocumentSearch, HiOutlineSearch } from "react-icons/hi";
 import { useGuest } from "../guests/useGuest";
 import { toast } from "react-hot-toast";
 import { getNames } from "country-list";
+import Checkbox from "../../ui/Checkbox";
+import CheckboxPanel from "../../ui/CheckboxPanel";
+import InputArea from "../../ui/InputArea";
 
 function AddBookingForm({ cabinToBook, onClose }) {
   const { register, formState, handleSubmit, reset } = useForm();
@@ -37,7 +40,6 @@ function AddBookingForm({ cabinToBook, onClose }) {
   const [searchedGuest, setSearchedGuest] = useState(null);
 
   const countries = getNames();
-
   const {
     searchGuest,
     guest,
@@ -98,6 +100,10 @@ function AddBookingForm({ cabinToBook, onClose }) {
     email,
     nationalID,
     nationality,
+    numGuests,
+    hasBreakfast,
+    isPaid,
+    onservations,
   }) {
     console.log(`START date: ${startDate}`);
     console.log(`END date: ${endDate}`);
@@ -105,6 +111,11 @@ function AddBookingForm({ cabinToBook, onClose }) {
     console.log(email);
     console.log(nationalID);
     console.log(nationality);
+    console.log(numGuests);
+    console.log(hasBreakfast);
+    console.log(isPaid);
+    console.log(onservations);
+    //status = pending
   }
 
   if (isLoading) return <Spinner />;
@@ -202,15 +213,36 @@ function AddBookingForm({ cabinToBook, onClose }) {
           options={countries}
           instruction="Select country"
           id="nationality"
-          value={searchedGuest?.nationality}
+          //  onChange={(e) => reset({ nationality: e.target.value })}
+          value={countries.find((country) =>
+            country.includes(searchedGuest?.nationality)
+          )}
           disabled={searchedGuest !== null || isLoadingGuest}
           {...register("nationality", { required: "This field is required" })}
         ></Select>
       </FormRow>
 
       {/* Guest numbers */}
-      {/* Breakfast included */}
-      {/* Paid on booking*/}
+      <FormRow label="Guest numbers" error={errors?.numGuests?.message}>
+        <Input
+          type="number"
+          id="numGuests"
+          min="1"
+          max={+settings?.maxGuestsPerBooking}
+          {...register("numGuests", { required: "This field is required" })}
+        />
+      </FormRow>
+      <FormRow label="Notes" error={errors?.onservations?.message}>
+        <InputArea rows="4" id="onservations" {...register("onservations")} />
+      </FormRow>
+      <CheckboxPanel>
+        <Checkbox id="hasBreakfast" {...register("hasBreakfast")}>
+          Breakfast included
+        </Checkbox>
+        <Checkbox id="isPaid" {...register("isPaid")}>
+          Paid
+        </Checkbox>
+      </CheckboxPanel>
 
       <FormRow>
         <Button variation="secondary" type="reset" onClick={() => onClose?.()}>

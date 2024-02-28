@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { forwardRef } from "react";
 
 const StyledSelect = styled.select`
   font-size: 1.4rem;
@@ -15,12 +16,16 @@ const StyledSelect = styled.select`
   max-width: 30rem;
 `;
 
-function Select({ options, value, onChange, instruction = null, ...props }) {
+const Select = forwardRef(function Select(
+  { options, value, onChange, instruction = null, ...props },
+  ref
+) {
   return (
     <StyledSelect
       onChange={onChange}
       value={value !== null ? value : ""}
       {...props}
+      ref={ref}
     >
       {instruction && <option value="">{instruction}</option>}
       {options.map((option) => (
@@ -33,6 +38,6 @@ function Select({ options, value, onChange, instruction = null, ...props }) {
       ))}
     </StyledSelect>
   );
-}
+});
 
 export default Select;
