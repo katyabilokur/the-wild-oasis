@@ -83,3 +83,9 @@ export const blockedDatesInCalendar = (blockedDates) => {
   });
   return allBlockedDates;
 };
+
+export const addDaysToDate = (date, daysToAdd) => {
+  let newDate = new Date(date);
+  newDate.setDate(newDate.getDate() + daysToAdd);
+  return newDate;
+};

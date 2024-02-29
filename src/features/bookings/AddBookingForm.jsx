@@ -19,7 +19,9 @@ import { toast } from "react-hot-toast";
 import { getNames } from "country-list";
 import Checkbox from "../../ui/Checkbox";
 import CheckboxPanel from "../../ui/CheckboxPanel";
-import InputArea from "../../ui/InputArea";
+import Textarea from "../../ui/Textarea";
+import { useCreateBooking } from "./useCreateBooking";
+import { useNavigate } from "react-router-dom";
 
 function AddBookingForm({ cabinToBook, onClose }) {
   const { register, formState, handleSubmit, reset } = useForm();
@@ -38,6 +40,9 @@ function AddBookingForm({ cabinToBook, onClose }) {
   //FOR USER SERACH
   const [searchValue, setSearchValue] = useState("");
   const [searchedGuest, setSearchedGuest] = useState(null);
+
+  const { isCreating, createBooking } = useCreateBooking();
+  const navigate = useNavigate();
 
   const countries = getNames();
   const {
@@ -58,8 +63,6 @@ function AddBookingForm({ cabinToBook, onClose }) {
     e.preventDefault();
     searchGuest(searchValue);
     setSearchedGuest(guest);
-
-    console.log(guest);
 
     if (guest) toast.success("Existing guest was found");
     if (!guest)
@@ -93,32 +96,48 @@ function AddBookingForm({ cabinToBook, onClose }) {
   //   console.log(`Lenght:  ${bookingLength}`);
   // }, [bookingLength]);
 
-  function onSubmit({
-    startDate,
-    endDate,
-    fullName,
-    email,
-    nationalID,
-    nationality,
-    numGuests,
-    hasBreakfast,
-    isPaid,
-    onservations,
-  }) {
-    console.log(`START date: ${startDate}`);
-    console.log(`END date: ${endDate}`);
-    console.log(fullName);
-    console.log(email);
-    console.log(nationalID);
-    console.log(nationality);
-    console.log(numGuests);
-    console.log(hasBreakfast);
-    console.log(isPaid);
-    console.log(onservations);
-    //status = pending
+  function onSubmit(data) {
+    //1a. Check if using searched guest, use its id.
+    //1b. Create a new guest record
+    //TODO:
+
+    //2. Form newData object
+    const cabinPrice =
+      (cabinToBook.regularPrice - cabinToBook.discount) * bookingLength;
+    const extrasPrice = data.hasBreakfast
+      ? settings.breakfastPrice * bookingLength
+      : 0;
+
+    const newData = {
+      startDate: data.startDate,
+      endDate: data.endDate,
+      numGuests: +data.numGuests,
+      numNights: bookingLength,
+      status: "pending",
+      cabinPrice,
+      extrasPrice,
+      totalPrice: cabinPrice + extrasPrice,
+      hasBreakfast: data.hasBreakfast,
+      isPaid: data.isPaid,
+      observations: data.observations,
+      guestId: searchedGuest?.id,
+      cabinId: cabinToBook.id,
+    };
+
+    //3. Create a new booking record
+    createBooking(
+      { ...newData },
+      {
+        onSuccess: (data) => {
+          reset();
+          onClose?.();
+          navigate(`/bookings/${data[0].id}`);
+        },
+      }
+    );
   }
 
-  if (isLoading) return <Spinner />;
+  if (isLoading || isCreating) return <Spinner />;
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -229,11 +248,16 @@ function AddBookingForm({ cabinToBook, onClose }) {
           id="numGuests"
           min="1"
           max={+settings?.maxGuestsPerBooking}
-          {...register("numGuests", { required: "This field is required" })}
+          {...register("numGuests", {
+            required: "This field is required",
+            validate: (value) =>
+              +value <= +cabinToBook.maxCapacity ||
+              `Maximum guest capacity is ${cabinToBook.maxCapacity}`,
+          })}
         />
       </FormRow>
-      <FormRow label="Notes" error={errors?.onservations?.message}>
-        <InputArea rows="4" id="onservations" {...register("onservations")} />
+      <FormRow label="Notes" error={errors?.observations?.message}>
+        <Textarea rows="4" id="observations" {...register("observations")} />
       </FormRow>
       <CheckboxPanel>
         <Checkbox id="hasBreakfast" {...register("hasBreakfast")}>

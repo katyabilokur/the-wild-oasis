@@ -4,10 +4,14 @@ import { useOutsideClick } from "../hooks/useOutsideClick";
 import { createPortal } from "react-dom";
 import { styled } from "styled-components";
 import { Calendar as CalendarReact } from "react-calendar";
-import { format, addDays, isEqual } from "date-fns";
+import { format, isEqual } from "date-fns";
 import StyledCalendar from "./css/StyledCalendar";
 import { useSettings } from "../features/settings/useSettings";
-import { blockedDatesInCalendar, createDateRange } from "../utils/helpers";
+import {
+  addDaysToDate,
+  blockedDatesInCalendar,
+  createDateRange,
+} from "../utils/helpers";
 import Spinner from "./Spinner";
 
 const StyledToggleField = styled.div`
@@ -46,7 +50,10 @@ function CalendarDateSelector({
 }) {
   const { settings } = useSettings();
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [dates, setDates] = useState([new Date(), addDays(new Date(), 1)]);
+  const [dates, setDates] = useState([
+    new Date(),
+    addDaysToDate(new Date(), 1),
+  ]);
   const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
 
   const [position, setPosition] = useState(null);
@@ -65,11 +72,14 @@ function CalendarDateSelector({
 
   useEffect(() => {
     setIsLoadingCalendar(true);
-    setDates([new Date(), addDays(new Date(), +settings?.minBookingLength)]);
+    setDates([
+      new Date(),
+      addDaysToDate(new Date(), +settings?.minBookingLength),
+    ]);
 
     onDateSelection([
       new Date(),
-      addDays(new Date(), +settings?.minBookingLength),
+      addDaysToDate(new Date(), +settings?.minBookingLength),
     ]);
     setIsLoadingCalendar(false);
   }, [settings]);
@@ -87,7 +97,7 @@ function CalendarDateSelector({
     setIsLoadingCalendar(true);
     let currentDates = [
       new Date(),
-      addDays(new Date(), +settings?.minBookingLength),
+      addDaysToDate(new Date(), +settings?.minBookingLength),
     ];
     let currentlyBookedDates = createDateRange(
       currentDates[0],
@@ -115,8 +125,8 @@ function CalendarDateSelector({
 
       if (overlapped) {
         currentDates = [
-          addDays(currentDates[0], 1),
-          addDays(currentDates[1], 1),
+          addDaysToDate(currentDates[0], 1),
+          addDaysToDate(currentDates[1], 1),
         ];
         currentlyBookedDates = createDateRange(
           currentDates[0],
@@ -260,7 +270,7 @@ function Calendar() {
         selectRange={true}
         tileClassName={tileHalfBlockedClassAdd}
         tileDisabled={({ date }) =>
-          date < addDays(new Date(), -1) ||
+          date < addDaysToDate(new Date(), -1) ||
           allBlockedDates.some((day) => isEqual(day, date))
         }
       />
