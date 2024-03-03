@@ -71,17 +71,19 @@ function CalendarDateSelector({
   }, [blockedDates]);
 
   useEffect(() => {
-    setIsLoadingCalendar(true);
-    setDates([
-      new Date(),
-      addDaysToDate(new Date(), +settings?.minBookingLength),
-    ]);
+    if (settings !== undefined) {
+      setIsLoadingCalendar(true);
+      setDates([
+        new Date(),
+        addDaysToDate(new Date(), +settings?.minBookingLength),
+      ]);
 
-    onDateSelection([
-      new Date(),
-      addDaysToDate(new Date(), +settings?.minBookingLength),
-    ]);
-    setIsLoadingCalendar(false);
+      onDateSelection([
+        new Date(),
+        addDaysToDate(new Date(), +settings?.minBookingLength),
+      ]);
+      setIsLoadingCalendar(false);
+    }
   }, [settings]);
 
   useEffect(() => {
@@ -181,7 +183,7 @@ function ToggleField() {
 
     setCalendarOpen((open) => !open);
   }
-  console.log(dates);
+  //console.log(dates);
 
   return (
     <>

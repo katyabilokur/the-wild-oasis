@@ -1,6 +1,9 @@
 import styled, { css } from "styled-components";
 
 const Form = styled.form`
+  overflow: hidden;
+  font-size: 1.4rem;
+
   ${(props) =>
     props.type === "regular" &&
     css`
@@ -16,10 +19,10 @@ const Form = styled.form`
     props.type === "modal" &&
     css`
       width: 80rem;
-    `}
-    
-  overflow: hidden;
-  font-size: 1.4rem;
+      margin: 0 auto;
+    `} /* @media (max-width: var(--size-laptop)) {
+    width: 90%;
+  } */
 `;
 
 Form.defaultProps = {

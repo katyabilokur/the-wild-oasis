@@ -103,6 +103,12 @@ const GlobalStyles = createGlobalStyle`
   --border-radius-md: 7px;
   --border-radius-lg: 9px;
 
+  --size-laptop: "1024px";
+  --size-desctop: "2560px";
+  --size-tablet: "768px";
+
+  
+
 }
 
 *,

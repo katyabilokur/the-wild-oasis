@@ -16,11 +16,12 @@ import { bookingLength as bookingLengthDays } from "../../utils/helpers";
 import { HiOutlineDocumentSearch, HiOutlineSearch } from "react-icons/hi";
 import { useGuest } from "../guests/useGuest";
 import { toast } from "react-hot-toast";
-import { getNames } from "country-list";
+import { getNames, getCode } from "country-list";
 import Checkbox from "../../ui/Checkbox";
 import CheckboxPanel from "../../ui/CheckboxPanel";
 import Textarea from "../../ui/Textarea";
 import { useCreateBooking } from "./useCreateBooking";
+import { useCreateGuest } from "../guests/useCreateGuest";
 import { useNavigate } from "react-router-dom";
 
 function AddBookingForm({ cabinToBook, onClose }) {
@@ -42,6 +43,7 @@ function AddBookingForm({ cabinToBook, onClose }) {
   const [searchedGuest, setSearchedGuest] = useState(null);
 
   const { isCreating, createBooking } = useCreateBooking();
+  //const { isCreating: isCreatingGuest, createGuest } = useCreateGuest();
   const navigate = useNavigate();
 
   const countries = getNames();
@@ -98,8 +100,20 @@ function AddBookingForm({ cabinToBook, onClose }) {
 
   function onSubmit(data) {
     //1a. Check if using searched guest, use its id.
-    //1b. Create a new guest record
-    //TODO:
+    let newGuest = null;
+
+    if (searchedGuest === null) {
+      //1b. Create a new guest record
+      newGuest = {
+        fullName: data.fullName,
+        email: data.email,
+        nationality: data.nationality,
+        nationalID: data.nationalID,
+        countryFlag: `https://flagcdn.com/${getCode(
+          data.nationality.toLowerCase()
+        )}.svg`,
+      };
+    }
 
     //2. Form newData object
     const cabinPrice =
@@ -108,25 +122,28 @@ function AddBookingForm({ cabinToBook, onClose }) {
       ? settings.breakfastPrice * bookingLength
       : 0;
 
-    const newData = {
+    const newBooking = {
       startDate: data.startDate,
       endDate: data.endDate,
       numGuests: +data.numGuests,
       numNights: bookingLength,
-      status: "pending",
+      status: "unconfirmed",
       cabinPrice,
       extrasPrice,
       totalPrice: cabinPrice + extrasPrice,
       hasBreakfast: data.hasBreakfast,
       isPaid: data.isPaid,
       observations: data.observations,
-      guestId: searchedGuest?.id,
+      guestId: searchGuest?.id,
       cabinId: cabinToBook.id,
     };
 
+    console.log(newBooking);
+    console.log(newGuest);
+
     //3. Create a new booking record
     createBooking(
-      { ...newData },
+      { newBooking, newGuest },
       {
         onSuccess: (data) => {
           reset();
@@ -140,7 +157,7 @@ function AddBookingForm({ cabinToBook, onClose }) {
   if (isLoading || isCreating) return <Spinner />;
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
+    <Form type="modal" onSubmit={handleSubmit(onSubmit)}>
       <FormRowHeader name={cabinToBook.name} img={cabinToBook.image} />
       {/* Start date - end date */}
       <FormRow label="Booking dates" error={errors?.endDate?.message}>

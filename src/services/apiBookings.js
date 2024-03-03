@@ -134,21 +134,46 @@ export async function updateBooking(id, obj) {
   return data;
 }
 
-export async function createBooking(newBooking) {
-  const { data, error } = await supabase
+//export async function createBooking(newBooking, newGuest) {
+export async function createBooking(data) {
+  let newGuestId = null;
+
+  const newBooking = data.newBooking;
+  const newGuest = data.newGuest;
+
+  console.log(`newBooking: ${newBooking}`);
+  console.log(`newGuest: ${newGuest}`);
+
+  //1. Create a new guest if needed
+  if (newGuest !== null) {
+    const { data: dataGuest, error: errorGuest } = await supabase
+      .from("guests")
+      .insert([{ ...newGuest }])
+      .select();
+
+    if (errorGuest) {
+      console.error(errorGuest);
+      throw new Error("A new guest can not be created");
+    }
+
+    console.log(dataGuest);
+    newGuestId = dataGuest[0].id;
+  }
+
+  //2. Create a new booking
+  const { data: dataBooking, error: errorBooking } = await supabase
     .from("bookings")
-    .insert([{ ...newBooking }])
+    .insert([{ ...newBooking, guestId: newGuestId }])
     .select();
 
-  if (error) {
-    console.error(error);
+  if (errorBooking) {
+    console.error(errorBooking);
     throw new Error("A new booking could not be created");
   }
-  return data;
+  return dataBooking;
 }
 
 export async function deleteBooking(id) {
-  // REMEMBER RLS POLICIES
   const { data, error } = await supabase.from("bookings").delete().eq("id", id);
 
   if (error) {

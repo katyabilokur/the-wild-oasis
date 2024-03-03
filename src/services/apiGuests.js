@@ -15,3 +15,16 @@ export async function getGuest(param) {
 
   return data;
 }
+
+export async function createGuest(newGuest) {
+  const { data, error } = await supabase
+    .from("guests")
+    .insert([{ ...newGuest }])
+    .select();
+
+  if (error) {
+    console.error(error);
+    throw new Error("A new guest can not be created");
+  }
+  return data;
+}
