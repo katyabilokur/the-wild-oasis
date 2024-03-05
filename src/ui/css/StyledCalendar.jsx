@@ -9,8 +9,8 @@ const StyledCalendar = styled.div`
   box-shadow: var(--shadow-md);
   border-radius: var(--border-radius-md);
 
-  right: ${(props) => props.position.x}px;
-  top: ${(props) => props.position.y}px;
+  right: ${(props) => props.$position.x}px;
+  top: ${(props) => props.$position.y}px;
 
   .react-calendar {
     font-family: "Poppins", sans-serif;

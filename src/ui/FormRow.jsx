@@ -75,7 +75,7 @@ function FormRow({ label, error, children, icon = null, button = null }) {
         <StyledButtonInput>
           {children}
           <Button
-            variation="light"
+            $variation="light"
             size="smallIcon"
             onClick={button.onButtonClick}
             disabled={button.disabled}

@@ -1,9 +1,4 @@
-import {
-  addDays,
-  formatDistance,
-  formatDistanceStrict,
-  parseISO,
-} from "date-fns";
+import { formatDistance, formatDistanceStrict, parseISO } from "date-fns";
 import { differenceInDays } from "date-fns";
 // import { differenceInDays, formatDistance, parseISO } from 'date-fns';
 
@@ -44,7 +39,7 @@ export const createDateRange = (
   const allDates = [...existingDateRange];
 
   const sDate = new Date(new Date(startDate).setHours(0, 0, 0, 0));
-  const eDate = addDays(
+  const eDate = addDaysToDate(
     new Date(new Date(endDate).setHours(0, 0, 0, 0)),
     includeStart ? 0 : -1
   );
@@ -85,7 +80,15 @@ export const blockedDatesInCalendar = (blockedDates) => {
 };
 
 export const addDaysToDate = (date, daysToAdd) => {
-  let newDate = new Date(date);
-  newDate.setDate(newDate.getDate() + daysToAdd);
+  let toAdd;
+  toAdd = isNaN(daysToAdd) ? 0 : daysToAdd;
+
+  let newDate = date;
+  newDate.setHours(0, 0, 0, 0);
+  newDate.setDate(newDate.getDate() + toAdd);
   return newDate;
+};
+
+export const isValidDate = (date) => {
+  return Object.prototype.toString.call(date) === "[object Date]";
 };

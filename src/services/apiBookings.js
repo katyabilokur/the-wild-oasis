@@ -141,9 +141,6 @@ export async function createBooking(data) {
   const newBooking = data.newBooking;
   const newGuest = data.newGuest;
 
-  console.log(`newBooking: ${newBooking}`);
-  console.log(`newGuest: ${newGuest}`);
-
   //1. Create a new guest if needed
   if (newGuest !== null) {
     const { data: dataGuest, error: errorGuest } = await supabase
@@ -163,7 +160,9 @@ export async function createBooking(data) {
   //2. Create a new booking
   const { data: dataBooking, error: errorBooking } = await supabase
     .from("bookings")
-    .insert([{ ...newBooking, guestId: newGuestId }])
+    .insert([
+      { ...newBooking, ...(newGuestId !== null && { guestId: newGuestId }) },
+    ])
     .select();
 
   if (errorBooking) {

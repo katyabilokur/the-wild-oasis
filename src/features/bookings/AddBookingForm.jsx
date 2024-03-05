@@ -21,7 +21,6 @@ import Checkbox from "../../ui/Checkbox";
 import CheckboxPanel from "../../ui/CheckboxPanel";
 import Textarea from "../../ui/Textarea";
 import { useCreateBooking } from "./useCreateBooking";
-import { useCreateGuest } from "../guests/useCreateGuest";
 import { useNavigate } from "react-router-dom";
 
 function AddBookingForm({ cabinToBook, onClose }) {
@@ -43,7 +42,6 @@ function AddBookingForm({ cabinToBook, onClose }) {
   const [searchedGuest, setSearchedGuest] = useState(null);
 
   const { isCreating, createBooking } = useCreateBooking();
-  //const { isCreating: isCreatingGuest, createGuest } = useCreateGuest();
   const navigate = useNavigate();
 
   const countries = getNames();
@@ -110,8 +108,8 @@ function AddBookingForm({ cabinToBook, onClose }) {
         nationality: data.nationality,
         nationalID: data.nationalID,
         countryFlag: `https://flagcdn.com/${getCode(
-          data.nationality.toLowerCase()
-        )}.svg`,
+          data.nationality
+        ).toLowerCase()}.svg`,
       };
     }
 
@@ -134,12 +132,11 @@ function AddBookingForm({ cabinToBook, onClose }) {
       hasBreakfast: data.hasBreakfast,
       isPaid: data.isPaid,
       observations: data.observations,
-      guestId: searchGuest?.id,
+      guestId: searchedGuest?.id,
       cabinId: cabinToBook.id,
     };
-
-    console.log(newBooking);
-    console.log(newGuest);
+    console.log(data.startDate);
+    console.log(data.endDate);
 
     //3. Create a new booking record
     createBooking(
@@ -264,7 +261,7 @@ function AddBookingForm({ cabinToBook, onClose }) {
           type="number"
           id="numGuests"
           min="1"
-          max={+settings?.maxGuestsPerBooking}
+          max={settings && +settings.maxGuestsPerBooking}
           {...register("numGuests", {
             required: "This field is required",
             validate: (value) =>
@@ -286,11 +283,11 @@ function AddBookingForm({ cabinToBook, onClose }) {
       </CheckboxPanel>
 
       <FormRow>
-        <Button variation="secondary" type="reset" onClick={() => onClose?.()}>
+        <Button $variation="secondary" type="reset" onClick={() => onClose?.()}>
           Cancel
         </Button>
         <Button
-          variation="light"
+          $variation="light"
           disabled={!searchedGuest}
           onClick={() => setSearchedGuest(null)}
         >

@@ -20,10 +20,10 @@ function App() {
 
             <div>
               <Heading as="h2">Check in and out</Heading>
-              <Button variation="primary" size="medium">
+              <Button $variation="primary" size="medium">
                 Check in
               </Button>
-              <Button variation="secondary" size="small">
+              <Button $variation="secondary" size="small">
                 Check out
               </Button>
             </div>

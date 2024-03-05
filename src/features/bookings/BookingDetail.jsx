@@ -73,12 +73,12 @@ function BookingDetail() {
               Check out
             </Button>
           )}
-          <Button variation="secondary" onClick={moveBack}>
+          <Button $variation="secondary" onClick={moveBack}>
             Back
           </Button>
           {status === "unconfirmed" && (
             <Modal.Open opens="delete">
-              <Button variation="danger">Delete</Button>
+              <Button $variation="danger">Delete</Button>
             </Modal.Open>
           )}
         </ButtonGroup>

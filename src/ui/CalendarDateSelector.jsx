@@ -50,10 +50,11 @@ function CalendarDateSelector({
 }) {
   const { settings } = useSettings();
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [dates, setDates] = useState([
+  const [dates, setDates] = useState(() => [
     new Date(),
     addDaysToDate(new Date(), 1),
   ]);
+
   const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
 
   const [position, setPosition] = useState(null);
@@ -183,7 +184,6 @@ function ToggleField() {
 
     setCalendarOpen((open) => !open);
   }
-  //console.log(dates);
 
   return (
     <>
@@ -260,9 +260,10 @@ function Calendar() {
   };
 
   return createPortal(
-    <StyledCalendar position={position} ref={ref}>
+    <StyledCalendar $position={position} ref={ref}>
       <CalendarReact
         minDetail="month"
+        defaultActiveStartDate={dates[0]}
         onChange={(value) => {
           setDates(value);
           handleBookedDates(value);
