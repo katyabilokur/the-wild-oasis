@@ -97,7 +97,6 @@ function AddBookingForm({ cabinToBook, onClose }) {
   // }, [bookingLength]);
 
   function onSubmit(data) {
-    console.log(data);
     //1a. Check if using searched guest, use its id.
     let newGuest = null;
 
@@ -142,9 +141,16 @@ function AddBookingForm({ cabinToBook, onClose }) {
       { newBooking, newGuest },
       {
         onSuccess: (data) => {
-          reset();
-          onClose?.();
-          navigate(`/bookings/${data[0].id}`);
+          if (data === "User exists") {
+            toast(
+              "A user with provided email or ID exists, please use Search to fill the details"
+            );
+          } else {
+            toast.success("New booking is successfully added");
+            reset();
+            onClose?.();
+            navigate(`/bookings/${data[0].id}`);
+          }
         },
       }
     );

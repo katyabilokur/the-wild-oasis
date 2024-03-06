@@ -143,6 +143,22 @@ export async function createBooking(data) {
 
   //1. Create a new guest if needed
   if (newGuest !== null) {
+    //1. Check if a user with given email or id exists in DB
+    const { data: dataExistingGuest, error: erroExistingGuest } = await supabase
+      .from("guests")
+      .select("*")
+      .or(`email.eq.${newGuest.email},nationalID.eq.${newGuest.nationalID}`)
+      .single();
+
+    //excluding code PGRST116 = 0 records were found
+    if (erroExistingGuest && erroExistingGuest.code !== "PGRST116") {
+      console.error(erroExistingGuest.code);
+      throw new Error("Guest information for validation cannot be found");
+    }
+
+    if (dataExistingGuest !== null) return "User exists";
+
+    //2. Create a new user if no
     const { data: dataGuest, error: errorGuest } = await supabase
       .from("guests")
       .insert([{ ...newGuest }])
@@ -153,7 +169,6 @@ export async function createBooking(data) {
       throw new Error("A new guest can not be created");
     }
 
-    console.log(dataGuest);
     newGuestId = dataGuest[0].id;
   }
 

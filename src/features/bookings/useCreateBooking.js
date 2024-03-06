@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
-import { createBooking as createBookingApi} from "../../services/apiBookings";
+import { createBooking as createBookingApi } from "../../services/apiBookings";
 
 export function useCreateBooking() {
   const quesryClient = useQueryClient();
@@ -8,7 +8,6 @@ export function useCreateBooking() {
   const { mutate: createBooking, isLoading: isCreating } = useMutation({
     mutationFn: createBookingApi,
     onSuccess: () => {
-      toast.success("New booking is successfully added");
       quesryClient.invalidateQueries({ quesryKey: ["bookings"] });
       // reset();
     },

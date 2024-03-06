@@ -16,6 +16,8 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "react-hot-toast";
 import ProtectedRout from "./ui/ProtectedRout";
 import { DarkModeProvider } from "./context/DarkModeContext";
+import { HiOutlineInformationCircle } from "react-icons/hi2";
+import ToastIcon from "./ui/ToastIcon";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -63,6 +65,14 @@ function App() {
           toastOptions={{
             success: { duration: 3000 },
             error: { duration: 5000 },
+            blank: {
+              duration: 6000,
+              icon: (
+                <ToastIcon>
+                  <HiOutlineInformationCircle />
+                </ToastIcon>
+              ),
+            },
             style: {
               fontSize: "16px",
               maxWidth: "500px",

@@ -76,7 +76,7 @@ function FormRow({ label, error, children, icon = null, button = null }) {
           {children}
           <Button
             $variation="light"
-            size="smallIcon"
+            $size="smallIcon"
             onClick={button.onButtonClick}
             disabled={button.disabled}
           >
