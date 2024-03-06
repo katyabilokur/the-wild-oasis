@@ -4,7 +4,7 @@ import { useOutsideClick } from "../hooks/useOutsideClick";
 import { createPortal } from "react-dom";
 import { styled } from "styled-components";
 import { Calendar as CalendarReact } from "react-calendar";
-import { format, isEqual } from "date-fns";
+import { format, isEqual, parseISO } from "date-fns";
 import StyledCalendar from "./css/StyledCalendar";
 import { useSettings } from "../features/settings/useSettings";
 import {
@@ -221,7 +221,9 @@ function Calendar() {
     if (
       blockedDates
         .map((block) => block.startDate)
-        .some((day) => isEqual(day, date))
+        .some((day) =>
+          isEqual(new Date(day).setHours(0, 0, 0, 0), date.setHours(0, 0, 0, 0))
+        )
     ) {
       if (isEqual(date, dates[1].setHours(0, 0, 0, 0)))
         return "react-calendar-tile-blocked-right-end";
@@ -231,7 +233,7 @@ function Calendar() {
     if (
       blockedDates
         .map((block) => block.endDate)
-        .some((day) => isEqual(day, date))
+        .some((day) => isEqual(new Date(day).setHours(0, 0, 0, 0), date))
     ) {
       if (isEqual(date, dates[0].setHours(0, 0, 0, 0)))
         return "react-calendar-tile-blocked-left-start";
@@ -273,7 +275,7 @@ function Calendar() {
         selectRange={true}
         tileClassName={tileHalfBlockedClassAdd}
         tileDisabled={({ date }) =>
-          date < addDaysToDate(new Date(), -1) ||
+          date <= addDaysToDate(new Date(), -1) ||
           allBlockedDates.some((day) => isEqual(day, date))
         }
       />
