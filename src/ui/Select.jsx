@@ -17,7 +17,7 @@ const StyledSelect = styled.select`
 `;
 
 const Select = forwardRef(function Select(
-  { options, value, onChange, instruction = null, ...props },
+  { options, value, onChange, readOnly, instruction = null, ...props },
   ref
 ) {
   return (

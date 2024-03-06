@@ -1,4 +1,9 @@
-import { formatDistance, formatDistanceStrict, parseISO } from "date-fns";
+import {
+  intervalToDuration,
+  formatDistance,
+  formatDistanceStrict,
+  parseISO,
+} from "date-fns";
 import { differenceInDays } from "date-fns";
 // import { differenceInDays, formatDistance, parseISO } from 'date-fns';
 
@@ -7,12 +12,11 @@ export const subtractDates = (dateStr1, dateStr2) =>
   differenceInDays(parseISO(String(dateStr1)), parseISO(String(dateStr2)));
 
 export const formatDistanceFromNow = (dateStr) =>
-  formatDistance(parseISO(dateStr), new Date(), {
+  formatDistance(new Date(dateStr), new Date().setHours(0, 0, 0, 0), {
     addSuffix: true,
   })
     .replace("about ", "")
     .replace("in", "In");
-
 // Supabase needs an ISO date string. However, that string will be different on every render because the MS or SEC have changed, which isn't good. So we use this trick to remove any time
 export const getToday = function (options = {}) {
   const today = new Date();

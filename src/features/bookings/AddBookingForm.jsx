@@ -97,16 +97,17 @@ function AddBookingForm({ cabinToBook, onClose }) {
   // }, [bookingLength]);
 
   function onSubmit(data) {
+    console.log(data);
     //1a. Check if using searched guest, use its id.
     let newGuest = null;
 
     if (searchedGuest === null) {
       //1b. Create a new guest record
       newGuest = {
-        fullName: data.fullName,
-        email: data.email,
-        nationality: data.nationality,
-        nationalID: data.nationalID,
+        fullName: data.fullName.trim(),
+        email: data.email.trim(),
+        nationality: data.nationality.trim(),
+        nationalID: data.nationalID.trim(),
         countryFlag: `https://flagcdn.com/${getCode(
           data.nationality
         ).toLowerCase()}.svg`,
@@ -135,8 +136,6 @@ function AddBookingForm({ cabinToBook, onClose }) {
       guestId: searchedGuest?.id,
       cabinId: cabinToBook.id,
     };
-    console.log(data.startDate);
-    console.log(data.endDate);
 
     //3. Create a new booking record
     createBooking(
@@ -215,7 +214,7 @@ function AddBookingForm({ cabinToBook, onClose }) {
         <Input
           type="text"
           id="fullName"
-          disabled={searchedGuest !== null || isLoadingGuest}
+          readOnly={searchedGuest !== null || isLoadingGuest}
           {...register("fullName", { required: "This field is required" })}
         />
       </FormRow>
@@ -223,7 +222,7 @@ function AddBookingForm({ cabinToBook, onClose }) {
         <Input
           type="text"
           id="email"
-          disabled={searchedGuest !== null || isLoadingGuest}
+          readOnly={searchedGuest !== null || isLoadingGuest}
           {...register("email", {
             required: "This field is required",
             pattern: {
@@ -237,7 +236,7 @@ function AddBookingForm({ cabinToBook, onClose }) {
         <Input
           type="text"
           id="nationalID"
-          disabled={searchedGuest !== null || isLoadingGuest}
+          readOnly={searchedGuest !== null || isLoadingGuest}
           {...register("nationalID", { required: "This field is required" })}
         />
       </FormRow>
@@ -250,7 +249,7 @@ function AddBookingForm({ cabinToBook, onClose }) {
           value={countries.find((country) =>
             country.includes(searchedGuest?.nationality)
           )}
-          disabled={searchedGuest !== null || isLoadingGuest}
+          readOnly={searchedGuest !== null || isLoadingGuest}
           {...register("nationality", { required: "This field is required" })}
         ></Select>
       </FormRow>
@@ -289,7 +288,9 @@ function AddBookingForm({ cabinToBook, onClose }) {
         <Button
           $variation="light"
           disabled={!searchedGuest}
-          onClick={() => setSearchedGuest(null)}
+          onClick={() => {
+            setSearchedGuest(null), setSearchValue("");
+          }}
         >
           Clear guest
         </Button>
