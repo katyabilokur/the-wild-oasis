@@ -18,7 +18,7 @@ const Form = styled.form`
   ${(props) =>
     props.type === "modal" &&
     css`
-      width: 80rem;
+      width: 95%;
       margin: 0 auto;
     `} /* @media (max-width: var(--size-laptop)) {
     width: 90%;

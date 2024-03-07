@@ -159,7 +159,7 @@ function AddBookingForm({ cabinToBook, onClose }) {
   if (isLoading || isCreating) return <Spinner />;
 
   return (
-    <Form type="modal" onSubmit={handleSubmit(onSubmit)}>
+    <Form $type="modal" onSubmit={handleSubmit(onSubmit)}>
       <FormRowHeader name={cabinToBook.name} img={cabinToBook.image} />
       {/* Start date - end date */}
       <FormRow label="Booking dates" error={errors?.endDate?.message}>
