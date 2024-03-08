@@ -40,6 +40,7 @@ function AddBookingForm({ cabinToBook, onClose }) {
   //FOR USER SERACH
   const [searchValue, setSearchValue] = useState("");
   const [searchedGuest, setSearchedGuest] = useState(null);
+  const [calendarReload, setCalendarReload] = useState(false);
 
   const { isCreating, createBooking } = useCreateBooking();
   const navigate = useNavigate();
@@ -142,6 +143,7 @@ function AddBookingForm({ cabinToBook, onClose }) {
       {
         onSuccess: (data) => {
           if (data === "User exists") {
+            setCalendarReload(true);
             toast(
               "A user with provided email or ID exists, please use Search to fill the details"
             );
@@ -168,6 +170,8 @@ function AddBookingForm({ cabinToBook, onClose }) {
           onIncludeBlockedDates={hanleIncludeBlockedDates}
           isLoading={isLoading}
           blockedDates={dates}
+          // onDateReload={handleReload}
+          dateReload={{ calendarReload, datesSelected, setCalendarReload }}
         >
           <CalendarDateSelector.ToggleField />
           <Modal>

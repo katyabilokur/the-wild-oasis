@@ -47,8 +47,10 @@ function CalendarDateSelector({
   blockedDates,
   onDateSelection,
   onIncludeBlockedDates,
+  dateReload,
 }) {
   const { settings } = useSettings();
+  const { calendarReload, datesSelected, setCalendarReload } = dateReload;
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [dates, setDates] = useState(() => [
     new Date(),
@@ -143,6 +145,13 @@ function CalendarDateSelector({
     setAllBookedDates(currentlyBookedDates);
     setIsLoadingCalendar(false);
   }, [settings]);
+
+  useEffect(() => {
+    if (calendarReload) {
+      setDates(datesSelected);
+      setCalendarReload(false);
+    }
+  }, [calendarReload]);
 
   if (isLoadingCalendar) return <Spinner />;
 
